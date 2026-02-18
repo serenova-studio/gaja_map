@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Gaja-MAP</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Gaja-MAP">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.json?v=2">
+    <link rel="stylesheet" href="style.css?v=2">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=M+PLUS+Rounded+1c:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <!-- Logo Container Groups Logo & Help Button -->
+            <div class="logo-container">
+                <img src="gaja_rogo_touka.png" alt="Gaja-MAP Logo" class="main-logo">
+                <button id="manual-btn" class="header-util-btn" title="メニューを開く">❓</button>
+            </div>
+
+            <!-- Help Menu (Moved outside logo-container to prevent clipping) -->
+            <div id="help-menu" class="help-menu">
+                <div class="help-menu-header">＊ 使い方はこちら ＊</div>
+                <a href="guide.html" target="_blank" class="help-menu-item">
+                    <span>簡易版（スマホ）</span>
+                </a>
+                <a href="guide.pdf" target="_blank" class="help-menu-item">
+                    <span>詳細版（PC/PDF）</span>
+                </a>
+            </div>
+        </header>
+        <section id="trip-info-section" class="trip-info-section">
+            <input type="text" id="trip-title" class="trip-title-input" placeholder="旅のタイトル" autocomplete="off"
+                spellcheck="false">
+            <div class="trip-meta">
+                <label for="trip-duration">Days:</label>
+                <select id="trip-duration" class="trip-duration-select">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7" selected>7</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="input-section">
+            <form id="add-form" autocomplete="off">
+                <div class="input-wrapper">
+                    <input type="text" id="place-name" name="gaja-place-name-v2" placeholder="行きたい場所" required
+                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <button type="button" id="place-search-btn" class="input-icon-btn" title="Naver Mapで検索">🔍</button>
+                </div>
+                <div class="url-input-group">
+                    <input type="text" id="place-url" name="gaja-place-url-v2" placeholder="Naver Map URL" required
+                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                </div>
+                <select id="place-day" name="gaja-place-day">
+                    <option value="1">Day 1</option>
+                    <option value="2">Day 2</option>
+                    <option value="3">Day 3</option>
+                    <option value="4">Day 4</option>
+                    <option value="5">Day 5</option>
+                    <option value="6">Day 6</option>
+                    <option value="7">Day 7</option>
+                </select>
+                <textarea id="place-memo" name="gaja-place-memo-v2" placeholder="Memo" rows="2" autocomplete="off"
+                    autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                <button type="submit">Add to List ✨</button>
+            </form>
+        </section>
+
+        <section class="filter-section">
+            <div class="filter-controls">
+                <div class="search-container">
+                    <span class="search-icon">🔎</span>
+                    <input type="text" id="search-input" placeholder="店名やメモを検索..." autocomplete="off">
+                </div>
+            </div>
+            <div class="tabs" id="day-tabs">
+                <button class="tab-btn active" data-day="all">All</button>
+                <button class="tab-btn" data-day="1">Day 1</button>
+                <button class="tab-btn" data-day="2">Day 2</button>
+                <button class="tab-btn" data-day="3">Day 3</button>
+                <button class="tab-btn" data-day="4">Day 4</button>
+                <button class="tab-btn" data-day="5">Day 5</button>
+                <button class="tab-btn" data-day="6">Day 6</button>
+                <button class="tab-btn" data-day="7">Day 7</button>
+            </div>
+        </section>
+
+        <section class="list-section">
+            <div id="card-list" class="card-grid">
+                <!-- Cards will be injected here -->
+            </div>
+        </section>
+
+        <section id="archive-section" class="archive-section" style="display: none;">
+            <h2>🏛️ 過去の旅 (Archives)</h2>
+            <div id="archive-list" class="card-grid">
+                <!-- Archived trips will be injected here -->
+            </div>
+            <button id="back-to-current-btn" class="back-btn">🔙 現在の旅に戻る</button>
+        </section>
+
+        <section class="footer-section">
+            <div class="footer-btns">
+                <button id="archive-btn" class="footer-btn">📦 旅を終了して保存</button>
+                <button id="clear-list-btn" class="footer-btn">🗑️
+                    リストをクリア</button>
+            </div>
+            <div class="data-mgmt-btns">
+                <button id="view-archives-btn" class="footer-btn secondary-btn">🏛️ 過去の旅を見る</button>
+            </div>
+            <div class="data-mgmt-btns">
+                <button id="export-btn" class="footer-btn sm-btn">📤 バックアップ保存</button>
+                <label for="import-file" class="footer-btn sm-btn import-label">📥 復元する</label>
+                <input type="file" id="import-file" accept=".json" style="display: none;">
+            </div>
+            <div class="disclaimer-container">
+                <button id="disclaimer-trigger" class="disclaimer-link">免責事項</button>
+            </div>
+            <div class="copyright">
+                © 2026 Gaja-MAP. All rights reserved.
+            </div>
+        </section>
+
+        <!-- Disclaimer Modal -->
+        <!-- Disclaimer Modal -->
+        <div id="disclaimer-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>免責事項 & データについて</h3>
+                <div class="modal-body">
+                    <p>本アプリはログイン機能を持たないため、データはお使いのブラウザ内（LocalStorage等）にのみ保存されます。</p>
+                    <p>Cookieやサイトデータの削除等によりデータが消える可能性があるため、定期的なバックアップ（「バックアップ保存」機能）を推奨します。</p>
+                    <p>地図情報の閲覧・利用については、NAVER Mapの利用規約に従ってください。</p>
+                    <p>当アプリは、予告なくサービスの内容を変更したり、提供を一時中断・終了したりする場合があります。</p>
+                    <p>外部サービス（地図アプリ、各Webサイト、リンク管理ツール等）の仕様変更やサービス終了により、正常に動作しなくなる場合がありますが、これらについて一切の責任を負いません。</p>
+                    <p>アプリ利用による通信料（データ通信量）が発生しますので、ご注意ください。</p>
+                    <p>本アプリの利用により生じた損害について、開発者は一切の責任を負いません。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
