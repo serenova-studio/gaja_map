@@ -285,57 +285,40 @@ header p {
     opacity: 0.8;
 }
 
-/* Trip Info Section */
-.trip-info-section {
-    background: rgba(255, 255, 255, 0.6);
-    padding: 10px 15px;
-    /* Reduced from 15px */
-    border-radius: 20px;
-    margin-bottom: 1rem;
-    /* Reduced from 1.5rem */
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-}
-
-.trip-title-input {
-    flex: 1;
-    min-width: 200px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    /* Thin border */
-    background: rgba(255, 255, 255, 0.6);
-    /* Light background */
-    font-family: 'M PLUS Rounded 1c', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-color);
-    padding: 5px 10px;
-    border-radius: 20px;
-    /* Oval shape */
-    outline: none;
-    transition: all 0.3s;
-}
-
-
+/* Trip Meta (Days Selection) - Integrated into Input Card */
 .trip-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    color: #666;
+    gap: 12px;
+    margin-bottom: 0;
+    /* Removed for consistent form gap */
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.trip-meta label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    /* Softened from 700 */
+    color: #8fa0b0;
+    /* Matched to placeholder color */
+    white-space: nowrap;
 }
 
 .trip-duration-select {
-    padding: 5px 10px;
+    flex: 1;
+    padding: 8px 15px;
     border-radius: 15px;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    background: rgba(255, 255, 255, 0.8);
+    background: white;
     font-family: inherit;
+    font-weight: 600;
     cursor: pointer;
     outline: none;
+    margin-bottom: 0;
+    /* Reset from global select style */
 }
 
 /* Input Section */
@@ -354,7 +337,8 @@ header p {
     display: flex;
     position: relative;
     /* For absolute positioning of icon */
-    margin-bottom: 1rem;
+    margin-bottom: 0;
+    /* Removed for consistent form gap */
 }
 
 .url-input-group input,
@@ -796,11 +780,35 @@ button[type="submit"]:hover {
     font-size: 1.5rem;
 }
 
-/* Footer Section */
+/* Footer Styling */
 .footer-section {
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+    margin-top: 3rem;
+    padding: 0 1rem;
+}
+
+.trip-title-container {
+    margin-bottom: 15px;
+}
+
+.trip-title-input {
+    width: 100%;
+    border: 2px solid rgba(255, 155, 162, 0.2);
+    /* Soft pink border */
+    background: rgba(255, 255, 255, 0.9);
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    padding: 12px 20px;
+    border-radius: 25px;
+    outline: none;
+    transition: all 0.3s;
+    text-align: center;
+}
+
+.trip-title-input:focus {
+    border-color: #ff85a2;
+    box-shadow: 0 0 10px rgba(255, 133, 162, 0.2);
 }
 
 .footer-btns {

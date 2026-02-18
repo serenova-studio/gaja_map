@@ -302,47 +302,58 @@ document.addEventListener('DOMContentLoaded', () => {
         const trip = getCurrentTrip();
         if (!trip) return;
 
-        if (confirm(`「${trip.title}」を終了してアーカイブ（保存）しますか？\n\n新しい旅の作成画面に移動します。`)) {
-            trip.archived = true;
-
-            // Create a new active trip
-            const newTrip = createNewTripObject("New Trip ✨", 7);
-            gajaTrips.unshift(newTrip); // Add to top
-            currentTripId = newTrip.id;
-
-            saveAllData();
-
-            // Updates
-            alert(`アーカイブしました！\n新しい旅の準備を始めましょう！`);
-            updateUI();
-
-            // Switch back to input view if we were in archives
-            archiveSection.style.display = 'none';
-            document.querySelector('.input-section').style.display = 'block';
-            document.querySelector('.filter-section').style.display = 'block';
-            document.querySelector('.list-section').style.display = 'block';
-            document.getElementById('trip-info-section').style.display = 'flex';
+        // Requirement: Ensure list is not empty before archiving? 
+        // Or just allow user to clear/archive anytime. The user said "if not empty", 
+        // but sometimes users want to start fresh even if empty. Let's stick to confirmation.
+        if (trip.items.length === 0) {
+            if (!confirm('リストが空ですが、この旅を終了して新しく始めますか？')) return;
+        } else {
+            if (!confirm(`「${trip.title || '無題の旅'}」を終了してアーカイブ（保存）しますか？\n\n新しい旅の作成画面に移動します。`)) return;
         }
+
+        // 1. Sync latest metadata from inputs before archiving
+        trip.title = tripTitleInput.value.trim() || "無題の旅";
+        trip.days = parseInt(tripDurationSelect.value) || 7;
+        trip.archived = true;
+
+        // 2. Create a new active trip
+        const newTrip = createNewTripObject("新しい旅 ✨", 7);
+        gajaTrips.unshift(newTrip); // Add to top
+        currentTripId = newTrip.id;
+
+        // 3. Persist everything
+        saveAllData();
+
+        // 4. Update UI
+        alert(`アーカイブしました！\n新しい旅の準備を始めましょう！`);
+        updateUI();
+
+        // Switch back to input view (clean state)
+        archiveSection.style.display = 'none';
+        document.querySelector('.input-section').style.display = 'block';
+        document.querySelector('.filter-section').style.display = 'block';
+        document.querySelector('.list-section').style.display = 'block';
+        document.getElementById('trip-title-container').style.display = 'block';
     }
 
     function toggleArchiveView() {
         const isArchiveVisible = archiveSection.style.display !== 'none';
 
         if (isArchiveVisible) {
-            // Hide Archive
+            // Hide Archive -> Show Main
             archiveSection.style.display = 'none';
             document.querySelector('.input-section').style.display = 'block';
-            document.querySelector('.filter-section').style.display = 'block'; // Ensure filters are shown
+            document.querySelector('.filter-section').style.display = 'block';
             document.querySelector('.list-section').style.display = 'block';
-            document.getElementById('trip-info-section').style.display = 'flex';
+            document.getElementById('trip-title-container').style.display = 'block';
             updateUI();
         } else {
-            // Show Archive
+            // Show Archive -> Hide Main
             archiveSection.style.display = 'block';
             document.querySelector('.input-section').style.display = 'none';
-            document.querySelector('.filter-section').style.display = 'none'; // Hide filters in archive list view
+            document.querySelector('.filter-section').style.display = 'none';
             document.querySelector('.list-section').style.display = 'none';
-            document.getElementById('trip-info-section').style.display = 'none';
+            document.getElementById('trip-title-container').style.display = 'none';
             renderArchiveList();
         }
     }
@@ -350,45 +361,70 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderArchiveList() {
         archiveList.innerHTML = '';
 
-        // Find all archived trips OR trips that are NOT the current active one (history)
-        // Ideally, we treat everything except currentTripId as "history" or strictly respect .archived flag.
-        // Let's list ALL trips, highlighting the Active one, or just Archived ones.
-        // Req: "Past Trips" view.
+        // Show ALL trips except the exact one being edited right now
+        // This ensures historical data is always visible
+        const historicalTrips = gajaTrips
+            .filter(t => t.id !== currentTripId)
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        const archivedTrips = gajaTrips.filter(t => t.id !== currentTripId || t.archived);
-
-        if (archivedTrips.length === 0) {
-            archiveList.innerHTML = '<p style="margin:20px; color:#666;">アーカイブされた旅はありません。</p>';
+        if (historicalTrips.length === 0) {
+            archiveList.innerHTML = `
+                <div style="text-align: center; color: #888; padding: 40px 20px; width: 100%;">
+                    <p>保存された過去の旅はありません。</p>
+                    <p style="font-size: 0.8rem;">「旅を終了して保存」ボタンを押すと、<br>現在進行中のリストがここに保存されます。</p>
+                </div>`;
             return;
         }
 
-        archivedTrips.forEach(trip => {
+        historicalTrips.forEach(trip => {
             const card = document.createElement('div');
-            card.className = 'card';
-            const dateStr = new Date(trip.createdAt).toLocaleDateString();
+            card.className = 'card archive-item-card';
+            card.style.borderLeft = '5px solid #ff85a2'; // Highlight archives
+
+            const dateStr = trip.createdAt ? new Date(trip.createdAt).toLocaleDateString() : '不明な日付';
 
             card.innerHTML = `
                 <div class="card-content">
-                    <h3>${trip.title}</h3>
-                    <p style="color:#666; font-size:0.9rem;">Created: ${dateStr}</p>
-                    <p style="color:#666; font-size:0.9rem;">${trip.days} Days / ${trip.items.length} Places</p>
+                    <h3 style="margin: 0 0 5px 0; color: #333; font-size: 1.1rem;">${trip.title || '無題の旅'}</h3>
+                    <div style="display: flex; gap: 10px; font-size: 0.8rem; color: #888;">
+                        <span>📅 ${dateStr}</span>
+                        <span>📍 ${trip.items ? trip.items.length : 0} 箇所</span>
+                        <span>🏖️ ${trip.days || '?'} 日間</span>
+                    </div>
                 </div>
-                <div class="card-actions">
-                    <button class="footer-btn view-trip-btn" style="background:#E6E6FA;">OPEN</button>
-                    ${trip.archived ? '' : '<span style="font-size:0.8rem; color:green;">(Active)</span>'}
+                <div class="card-actions" style="margin-top: 15px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px;">
+                    <button class="open-archive-btn" style="background: #ff85a2; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; flex: 1;">OPEN</button>
+                    <button class="delete-archive-btn" style="background: none; border: none; color: #ffb5b5; cursor: pointer; padding: 5px;" title="削除">🗑️</button>
                 </div>
             `;
 
-            card.querySelector('.view-trip-btn').addEventListener('click', () => {
-                // Switch to this trip
+            // Open archived trip
+            const openBtn = card.querySelector('.open-archive-btn');
+            openBtn.addEventListener('click', () => {
                 currentTripId = trip.id;
-                // If it was archived, we might want to unarchive logic? 
-                // User requirement: "Past trips are viewable and editable"
-                // So we just switch context and go back to main view.
-
                 saveAllData();
-                toggleArchiveView(); // Go back to main
-                alert(`「${trip.title}」を開きました。`);
+
+                // Hide Archive Section and Show Main
+                archiveSection.style.display = 'none';
+                document.querySelector('.input-section').style.display = 'block';
+                document.querySelector('.filter-section').style.display = 'block';
+                document.querySelector('.list-section').style.display = 'block';
+                if (document.getElementById('trip-title-container')) {
+                    document.getElementById('trip-title-container').style.display = 'block';
+                }
+
+                updateUI();
+                alert(`「${trip.title || '無題の旅'}」を読み込みました。`);
+            });
+
+            // Delete trip
+            const deleteBtn = card.querySelector('.delete-archive-btn');
+            deleteBtn.addEventListener('click', () => {
+                if (confirm(`「${trip.title || '無題の旅'}」を完全に削除しますか？`)) {
+                    gajaTrips = gajaTrips.filter(t => t.id !== trip.id);
+                    saveAllData();
+                    renderArchiveList();
+                }
             });
 
             archiveList.appendChild(card);
